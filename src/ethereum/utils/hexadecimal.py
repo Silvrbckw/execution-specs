@@ -56,10 +56,7 @@ def remove_hex_prefix(hex_string: str) -> str:
     modified_hex_string : `str`
         The hexadecimal string with the 0x prefix removed if present.
     """
-    if has_hex_prefix(hex_string):
-        return hex_string[len("0x") :]
-
-    return hex_string
+    return hex_string[len("0x") :] if has_hex_prefix(hex_string) else hex_string
 
 
 def hex_to_bytes(hex_string: str) -> Bytes:

@@ -32,7 +32,7 @@ class Hardfork:
         if path is None:
             raise ValueError("module `ethereum` has no path information")
 
-        modules = pkgutil.iter_modules(path, ethereum.__name__ + ".")
+        modules = pkgutil.iter_modules(path, f"{ethereum.__name__}.")
         modules = (module for module in modules if module.ispkg)
         forks: List[H] = []
         new_package = None
@@ -125,7 +125,7 @@ class Hardfork:
         Import if necessary, and return the given module belonging to this hard
         fork.
         """
-        return importlib.import_module(self.mod.__name__ + "." + name)
+        return importlib.import_module(f"{self.mod.__name__}.{name}")
 
     def optimized_module(self, name: str) -> Any:
         """
@@ -133,7 +133,7 @@ class Hardfork:
         fork's optimized implementation.
         """
         assert self.mod.__name__.startswith("ethereum.")
-        module = "ethereum_optimized" + self.mod.__name__[8:] + "." + name
+        module = f"ethereum_optimized{self.mod.__name__[8:]}.{name}"
         return importlib.import_module(module)
 
     def iter_modules(self) -> Iterator[ModuleInfo]:
@@ -143,7 +143,7 @@ class Hardfork:
         if self.path is None:
             raise ValueError(f"cannot walk {self.name}, path is None")
 
-        return pkgutil.iter_modules(self.path, self.name + ".")
+        return pkgutil.iter_modules(self.path, f"{self.name}.")
 
     def walk_packages(self) -> Iterator[ModuleInfo]:
         """
@@ -152,4 +152,4 @@ class Hardfork:
         if self.path is None:
             raise ValueError(f"cannot walk {self.name}, path is None")
 
-        return pkgutil.walk_packages(self.path, self.name + ".")
+        return pkgutil.walk_packages(self.path, f"{self.name}.")

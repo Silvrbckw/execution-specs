@@ -55,17 +55,14 @@ def encode(raw_data: RLP) -> Bytes:
     elif isinstance(raw_data, str):
         return encode_bytes(raw_data.encode())
     elif isinstance(raw_data, bool):
-        if raw_data:
-            return encode_bytes(b"\x01")
-        else:
-            return encode_bytes(b"")
+        return encode_bytes(b"\x01") if raw_data else encode_bytes(b"")
     elif isinstance(raw_data, Sequence):
         return encode_sequence(raw_data)
     elif is_dataclass(raw_data):
         return encode(astuple(raw_data))
     else:
         raise RLPEncodingError(
-            "RLP Encoding of type {} is not supported".format(type(raw_data))
+            f"RLP Encoding of type {type(raw_data)} is not supported"
         )
 
 
@@ -118,13 +115,12 @@ def encode_sequence(raw_sequence: Sequence[RLP]) -> Bytes:
 
     if len_joined_encodings < 0x38:
         return Bytes([0xC0 + len_joined_encodings]) + joined_encodings
-    else:
-        len_joined_encodings_as_be = len_joined_encodings.to_be_bytes()
-        return (
-            Bytes([0xF7 + len(len_joined_encodings_as_be)])
-            + len_joined_encodings_as_be
-            + joined_encodings
-        )
+    len_joined_encodings_as_be = len_joined_encodings.to_be_bytes()
+    return (
+        Bytes([0xF7 + len(len_joined_encodings_as_be)])
+        + len_joined_encodings_as_be
+        + joined_encodings
+    )
 
 
 def get_joined_encodings(raw_sequence: Sequence[RLP]) -> Bytes:
@@ -226,17 +222,16 @@ def _decode_to(cls: Type[T], raw_rlp: RLP) -> T:
     """
     if isinstance(cls, type(Tuple[Uint, ...])) and cls._name == "Tuple":  # type: ignore # noqa: E501
         ensure(type(raw_rlp) == list, RLPDecodingError)
+        args = []
         if cls.__args__[1] == ...:  # type: ignore
-            args = []
-            for raw_item in raw_rlp:
-                args.append(_decode_to(cls.__args__[0], raw_item))  # type: ignore # noqa: E501
-            return tuple(args)  # type: ignore
+            args.extend(_decode_to(cls.__args__[0], raw_item) for raw_item in raw_rlp)
         else:
-            args = []
             ensure(len(raw_rlp) == len(cls.__args__), RLPDecodingError)  # type: ignore # noqa: E501
-            for (t, raw_item) in zip(cls.__args__, raw_rlp):  # type: ignore
-                args.append(_decode_to(t, raw_item))
-            return tuple(args)  # type: ignore
+            args.extend(
+                _decode_to(t, raw_item)
+                for t, raw_item in zip(cls.__args__, raw_rlp)
+            )
+        return tuple(args)  # type: ignore
     elif cls == Union[Bytes0, Bytes20]:
         # We can't support Union types in general, so we support this one
         # (which appears in the Transaction type) as a special case
@@ -246,20 +241,13 @@ def _decode_to(cls: Type[T], raw_rlp: RLP) -> T:
         elif len(raw_rlp) == 20:
             return Bytes20(raw_rlp)  # type: ignore
         else:
-            raise RLPDecodingError(
-                "Bytes has length {}, expected 0 or 20".format(len(raw_rlp))
-            )
+            raise RLPDecodingError(f"Bytes has length {len(raw_rlp)}, expected 0 or 20")
     elif isinstance(cls, type(List[Bytes])) and cls._name == "List":  # type: ignore # noqa: E501
         ensure(type(raw_rlp) == list, RLPDecodingError)
-        items = []
-        for raw_item in raw_rlp:
-            items.append(_decode_to(cls.__args__[0], raw_item))  # type: ignore
-        return items  # type: ignore
+        return [_decode_to(cls.__args__[0], raw_item) for raw_item in raw_rlp]
     elif isinstance(cls, type(Union[Bytes, List[Bytes]])) and cls.__origin__ == Union:  # type: ignore # noqa: E501
         if len(cls.__args__) != 2 or Bytes not in cls.__args__:  # type: ignore
-            raise RLPDecodingError(
-                "RLP Decoding to type {} is not supported".format(cls)
-            )
+            raise RLPDecodingError(f"RLP Decoding to type {cls} is not supported")
         if isinstance(raw_rlp, Bytes):
             return raw_rlp  # type: ignore
         elif cls.__args__[0] == Bytes:  # type: ignore
@@ -272,7 +260,7 @@ def _decode_to(cls: Type[T], raw_rlp: RLP) -> T:
         elif raw_rlp == b"":
             return cls(False)  # type: ignore
         else:
-            raise TypeError("Cannot decode {} as {}".format(raw_rlp, cls))
+            raise TypeError(f"Cannot decode {raw_rlp} as {cls}")
     elif issubclass(cls, FixedBytes):
         ensure(type(raw_rlp) == Bytes, RLPDecodingError)
         ensure(len(raw_rlp) == cls.LENGTH, RLPDecodingError)
@@ -289,15 +277,14 @@ def _decode_to(cls: Type[T], raw_rlp: RLP) -> T:
     elif is_dataclass(cls):
         ensure(type(raw_rlp) == list, RLPDecodingError)
         assert isinstance(raw_rlp, list)
-        args = []
         ensure(len(fields(cls)) == len(raw_rlp), RLPDecodingError)
-        for (field, rlp_item) in zip(fields(cls), raw_rlp):
-            args.append(_decode_to(field.type, rlp_item))
+        args = [
+            _decode_to(field.type, rlp_item)
+            for field, rlp_item in zip(fields(cls), raw_rlp)
+        ]
         return cls(*args)
     else:
-        raise RLPDecodingError(
-            "RLP Decoding to type {} is not supported".format(cls)
-        )
+        raise RLPDecodingError(f"RLP Decoding to type {cls} is not supported")
 
 
 def decode_to_bytes(encoded_bytes: Bytes) -> Bytes:
@@ -321,9 +308,7 @@ def decode_to_bytes(encoded_bytes: Bytes) -> Bytes:
         len_raw_data = encoded_bytes[0] - 0x80
         ensure(len_raw_data < len(encoded_bytes), RLPDecodingError)
         raw_data = encoded_bytes[1 : 1 + len_raw_data]
-        ensure(
-            not (len_raw_data == 1 and raw_data[0] < 0x80), RLPDecodingError
-        )
+        ensure(len_raw_data != 1 or raw_data[0] >= 0x80, RLPDecodingError)
         return raw_data
     else:
         # This is the index in the encoded data at which decoded data

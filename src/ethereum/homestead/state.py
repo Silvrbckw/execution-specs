@@ -121,10 +121,7 @@ def get_account(state: State, address: Address) -> Account:
         Account at address.
     """
     account = get_account_optional(state, address)
-    if isinstance(account, Account):
-        return account
-    else:
-        return EMPTY_ACCOUNT
+    return account if isinstance(account, Account) else EMPTY_ACCOUNT
 
 
 def get_account_optional(state: State, address: Address) -> Optional[Account]:
@@ -144,8 +141,7 @@ def get_account_optional(state: State, address: Address) -> Optional[Account]:
     account : `Account`
         Account at address.
     """
-    account = trie_get(state._main_trie, address)
-    return account
+    return trie_get(state._main_trie, address)
 
 
 def set_account(

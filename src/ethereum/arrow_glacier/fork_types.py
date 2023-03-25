@@ -126,15 +126,14 @@ def decode_transaction(tx: Union[LegacyTransaction, Bytes]) -> Transaction:
     """
     Decode a transaction. Needed because non-legacy transactions aren't RLP.
     """
-    if isinstance(tx, Bytes):
-        if tx[0] == 1:
-            return rlp.decode_to(AccessListTransaction, tx[1:])
-        elif tx[0] == 2:
-            return rlp.decode_to(FeeMarketTransaction, tx[1:])
-        else:
-            raise InvalidBlock
-    else:
+    if not isinstance(tx, Bytes):
         return tx
+    if tx[0] == 1:
+        return rlp.decode_to(AccessListTransaction, tx[1:])
+    elif tx[0] == 2:
+        return rlp.decode_to(FeeMarketTransaction, tx[1:])
+    else:
+        raise InvalidBlock
 
 
 @slotted_freezable

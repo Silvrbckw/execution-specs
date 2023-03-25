@@ -121,10 +121,7 @@ def get_account(state: State, address: Address) -> Account:
         Account at address.
     """
     account = get_account_optional(state, address)
-    if isinstance(account, Account):
-        return account
-    else:
-        return EMPTY_ACCOUNT
+    return account if isinstance(account, Account) else EMPTY_ACCOUNT
 
 
 def get_account_optional(state: State, address: Address) -> Optional[Account]:
@@ -144,8 +141,7 @@ def get_account_optional(state: State, address: Address) -> Optional[Account]:
     account : `Account`
         Account at address.
     """
-    account = trie_get(state._main_trie, address)
-    return account
+    return trie_get(state._main_trie, address)
 
 
 def set_account(
@@ -413,14 +409,13 @@ def is_account_alive(state: State, address: Address) -> bool:
         True if the account is alive.
     """
     account = get_account_optional(state, address)
-    if account is None:
-        return False
-    else:
-        return not (
-            account.nonce == Uint(0)
-            and account.code == b""
-            and account.balance == 0
-        )
+    return (
+        False
+        if account is None
+        else account.nonce != Uint(0)
+        or account.code != b""
+        or account.balance != 0
+    )
 
 
 def modify_state(

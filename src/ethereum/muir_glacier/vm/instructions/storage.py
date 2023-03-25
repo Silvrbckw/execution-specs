@@ -76,10 +76,7 @@ def sstore(evm: Evm) -> None:
     current_value = get_storage(evm.env.state, evm.message.current_target, key)
 
     if original_value == current_value and current_value != new_value:
-        if original_value == 0:
-            gas_cost = GAS_STORAGE_SET
-        else:
-            gas_cost = GAS_STORAGE_UPDATE
+        gas_cost = GAS_STORAGE_SET if original_value == 0 else GAS_STORAGE_UPDATE
     else:
         gas_cost = GAS_SLOAD
 
@@ -87,13 +84,14 @@ def sstore(evm: Evm) -> None:
 
     # Refund Counter Calculation
     if current_value != new_value:
-        if original_value != 0 and current_value != 0 and new_value == 0:
-            # Storage is cleared for the first time in the transaction
-            evm.refund_counter += int(GAS_STORAGE_CLEAR_REFUND)
+        if original_value != 0:
+            if current_value != 0 and new_value == 0:
+                # Storage is cleared for the first time in the transaction
+                evm.refund_counter += int(GAS_STORAGE_CLEAR_REFUND)
 
-        if original_value != 0 and current_value == 0:
-            # Gas refund issued earlier to be reversed
-            evm.refund_counter -= int(GAS_STORAGE_CLEAR_REFUND)
+            if current_value == 0:
+                # Gas refund issued earlier to be reversed
+                evm.refund_counter -= int(GAS_STORAGE_CLEAR_REFUND)
 
         if original_value == new_value:
             # Storage slot being restored to its original value

@@ -127,9 +127,6 @@ def msize(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 

@@ -44,9 +44,6 @@ def address(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -94,9 +91,6 @@ def origin(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -117,9 +111,6 @@ def caller(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -140,9 +131,6 @@ def callvalue(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -189,9 +177,6 @@ def calldatasize(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -247,9 +232,6 @@ def codesize(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -305,9 +287,6 @@ def gasprice(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -387,9 +366,6 @@ def returndatasize(evm: Evm) -> None:
     evm :
         The current EVM frame.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 

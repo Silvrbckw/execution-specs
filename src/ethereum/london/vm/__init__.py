@@ -136,9 +136,11 @@ def incorporate_child_on_error(evm: Evm, child_evm: Evm) -> None:
     # reverted in order to preserve this historical behaviour.
     if RIPEMD160_ADDRESS in child_evm.touched_accounts:
         evm.touched_accounts.add(RIPEMD160_ADDRESS)
-    if child_evm.message.current_target == RIPEMD160_ADDRESS:
-        if account_exists_and_is_empty(
+    if (
+        child_evm.message.current_target == RIPEMD160_ADDRESS
+        and account_exists_and_is_empty(
             evm.env.state, child_evm.message.current_target
-        ):
-            evm.touched_accounts.add(RIPEMD160_ADDRESS)
+        )
+    ):
+        evm.touched_accounts.add(RIPEMD160_ADDRESS)
     evm.gas_left += child_evm.gas_left

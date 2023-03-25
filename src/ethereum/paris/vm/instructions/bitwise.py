@@ -171,11 +171,7 @@ def bitwise_shl(evm: Evm) -> None:
     charge_gas(evm, GAS_VERY_LOW)
 
     # OPERATION
-    if shift < 256:
-        result = U256((value << shift) % U256_CEIL_VALUE)
-    else:
-        result = U256(0)
-
+    result = U256((value << shift) % U256_CEIL_VALUE) if shift < 256 else U256(0)
     push(evm.stack, result)
 
     # PROGRAM COUNTER
@@ -199,11 +195,7 @@ def bitwise_shr(evm: Evm) -> None:
     charge_gas(evm, GAS_VERY_LOW)
 
     # OPERATION
-    if shift < 256:
-        result = value >> shift
-    else:
-        result = U256(0)
-
+    result = value >> shift if shift < 256 else U256(0)
     push(evm.stack, result)
 
     # PROGRAM COUNTER

@@ -164,7 +164,7 @@ class T8N(Load):
         for fork in self.forks:
             if fork.name == target_fork_name:
                 return_value = True
-            if fork.name == "ethereum." + self._fork_module:
+            if fork.name == f"ethereum.{self._fork_module}":
                 break
         return return_value
 

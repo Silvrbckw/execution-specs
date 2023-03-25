@@ -39,9 +39,6 @@ def pop(evm: Evm) -> None:
     # GAS
     charge_gas(evm, GAS_BASE)
 
-    # OPERATION
-    pass
-
     # PROGRAM COUNTER
     evm.pc += 1
 
@@ -60,9 +57,6 @@ def push_n(evm: Evm, num_bytes: int) -> None:
         the stack. Push zero if num_bytes is zero.
 
     """
-    # STACK
-    pass
-
     # GAS
     if num_bytes == 0:
         charge_gas(evm, GAS_BASE)
@@ -93,9 +87,6 @@ def dup_n(evm: Evm, item_number: int) -> None:
         to the top of stack.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_VERY_LOW)
 
@@ -126,9 +117,6 @@ def swap_n(evm: Evm, item_number: int) -> None:
         with the top of stack element.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_VERY_LOW)
 

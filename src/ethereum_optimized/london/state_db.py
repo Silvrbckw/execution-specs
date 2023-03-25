@@ -76,9 +76,11 @@ class State:
         """
         Test for equality by comparing state roots.
         """
-        if not isinstance(other, State):
-            return NotImplemented
-        return state_root(self) == state_root(other)
+        return (
+            state_root(self) == state_root(other)
+            if isinstance(other, State)
+            else NotImplemented
+        )
 
     def __enter__(self) -> "State":
         """Support with statements"""
@@ -218,12 +220,10 @@ def rollback_transaction(state: State) -> None:
             # Restore storage that was destroyed by `destroy_storage()`
             state.destroyed_accounts.remove(item[0])
             state.dirty_storage[item[0]] = item[1]
+        elif item[1] is Unmodified:
+            del state.dirty_accounts[item[0]]
         else:
-            # Revert a change to an account
-            if item[1] is Unmodified:
-                del state.dirty_accounts[item[0]]
-            else:
-                state.dirty_accounts[item[0]] = item[1]
+            state.dirty_accounts[item[0]] = item[1]
 
 
 def get_storage(state: State, address: Address, key: Bytes) -> U256:

@@ -90,9 +90,11 @@ class EllipticCurve(Generic[F]):
         """
         Test two points for equality.
         """
-        if not isinstance(other, type(self)):
-            return False
-        return self.x == other.x and self.y == other.y
+        return (
+            self.x == other.x and self.y == other.y
+            if isinstance(other, type(self))
+            else False
+        )
 
     def __str__(self) -> str:
         """
@@ -134,10 +136,7 @@ class EllipticCurve(Generic[F]):
         if other_x == ZERO and other_y == ZERO:
             return self
         if self_x == other_x:
-            if self_y == other_y:
-                return self.double()
-            else:
-                return self.point_at_infinity()
+            return self.double() if self_y == other_y else self.point_at_infinity()
         lam = (other_y - self_y) / (other_x - self_x)
         x = lam**2 - self_x - other_x
         y = lam * (self_x - x) - self_y

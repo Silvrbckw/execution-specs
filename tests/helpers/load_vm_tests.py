@@ -177,10 +177,7 @@ class VmTestLoader:
         return state
 
     def json_to_addrs(self, raw: Any) -> List[Any]:
-        addrs = []
-        for addr_hex in raw:
-            addrs.append(self.hex_to_address(addr_hex))
-        return addrs
+        return [self.hex_to_address(addr_hex) for addr_hex in raw]
 
     def get_dummy_account_state(self, min_balance: str) -> Any:
         # dummy account balance is the min balance needed plus 1 eth for gas

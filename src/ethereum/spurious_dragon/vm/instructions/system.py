@@ -156,9 +156,6 @@ def return_(evm: Evm) -> None:
 
     evm.running = False
 
-    # PROGRAM COUNTER
-    pass
-
 
 def generic_call(
     evm: Evm,
@@ -393,9 +390,6 @@ def selfdestruct(evm: Evm) -> None:
 
     # HALT the execution
     evm.running = False
-
-    # PROGRAM COUNTER
-    pass
 
 
 def delegatecall(evm: Evm) -> None:

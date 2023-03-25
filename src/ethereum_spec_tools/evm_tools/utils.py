@@ -88,7 +88,7 @@ def secp256k1_sign(msg_hash: Hash32, secret_key: int) -> Tuple[U256, ...]:
     signature = private_key.sign_recoverable(msg_hash, hasher=None)
 
     return (
-        U256.from_be_bytes(signature[0:32]),
+        U256.from_be_bytes(signature[:32]),
         U256.from_be_bytes(signature[32:64]),
         U256(signature[64]),
     )

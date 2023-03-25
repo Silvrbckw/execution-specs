@@ -40,8 +40,7 @@ class EvmTrace:
         Add indentation for child evms (depth > 0)
         """
         tabs = "\t" * self.depth
-        rep = tabs + self.__repr__()
-        return rep
+        return tabs + self.__repr__()
 
 
 def evm_trace(evm: Any, op: Any) -> None:

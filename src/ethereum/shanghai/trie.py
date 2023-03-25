@@ -150,10 +150,7 @@ def encode_internal_node(node: Optional[InternalNode]) -> rlp.RLP:
         raise AssertionError(f"Invalid internal node type {type(node)}!")
 
     encoded = rlp.encode(unencoded)
-    if len(encoded) < 32:
-        return unencoded
-    else:
-        return keccak256(encoded)
+    return unencoded if len(encoded) < 32 else keccak256(encoded)
 
 
 def encode_node(node: Node, storage_root: Optional[Bytes] = None) -> Bytes:
@@ -250,10 +247,7 @@ def common_prefix_length(a: Sequence, b: Sequence) -> int:
     """
     Find the longest common prefix of two sequences.
     """
-    for i in range(len(a)):
-        if i >= len(b) or a[i] != b[i]:
-            return i
-    return len(a)
+    return next((i for i in range(len(a)) if i >= len(b) or a[i] != b[i]), len(a))
 
 
 def nibble_list_to_compact(x: Bytes, is_leaf: bool) -> Bytes:
@@ -358,11 +352,7 @@ def _prepare_trie(
         # Empty values are represented by their absence
         ensure(encoded_value != b"", AssertionError)
         key: Bytes
-        if trie.secured:
-            # "secure" tries hash keys once before construction
-            key = keccak256(preimage)
-        else:
-            key = preimage
+        key = keccak256(preimage) if trie.secured else preimage
         mapped[bytes_to_nibble_list(key)] = encoded_value
 
     return mapped
@@ -394,9 +384,8 @@ def root(
     root_node = encode_internal_node(patricialize(obj, Uint(0)))
     if len(rlp.encode(root_node)) < 32:
         return keccak256(rlp.encode(root_node))
-    else:
-        assert isinstance(root_node, Bytes)
-        return Root(root_node)
+    assert isinstance(root_node, Bytes)
+    return Root(root_node)
 
 
 def patricialize(
@@ -427,9 +416,7 @@ def patricialize(
 
     # if leaf node
     if len(obj) == 1:
-        leaf = LeafNode(arbitrary_key[level:], obj[arbitrary_key])
-        return leaf
-
+        return LeafNode(arbitrary_key[level:], obj[arbitrary_key])
     # prepare for extension node check by finding max j such that all keys in
     # obj have the same key[i:j]
     substring = arbitrary_key[level:]
@@ -451,9 +438,7 @@ def patricialize(
             encode_internal_node(patricialize(obj, level + prefix_length)),
         )
 
-    branches: List[MutableMapping[Bytes, Bytes]] = []
-    for _ in range(16):
-        branches.append({})
+    branches: List[MutableMapping[Bytes, Bytes]] = [{} for _ in range(16)]
     value = b""
     for key in obj:
         if len(key) == level:

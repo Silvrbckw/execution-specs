@@ -91,9 +91,7 @@ def prepare_message(
     else:
         raise AssertionError("Target must be address or empty bytes")
 
-    accessed_addresses = set()
-    accessed_addresses.add(current_target)
-    accessed_addresses.add(caller)
+    accessed_addresses = {current_target, caller}
     accessed_addresses.update(PRE_COMPILED_CONTRACTS.keys())
     accessed_addresses.update(preaccessed_addresses)
 

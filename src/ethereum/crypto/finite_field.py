@@ -108,31 +108,35 @@ class PrimeField(int, Field):
         return self.__add__(left)
 
     def __add__(self: T, right: T) -> T:  # type: ignore[override]
-        if not isinstance(right, int):
-            return NotImplemented
-
-        return self.__new__(type(self), int.__add__(self, right))
+        return (
+            self.__new__(type(self), int.__add__(self, right))
+            if isinstance(right, int)
+            else NotImplemented
+        )
 
     def __iadd__(self: T, right: T) -> T:  # type: ignore[override]
         return self.__add__(right)
 
     def __sub__(self: T, right: T) -> T:  # type: ignore[override]
-        if not isinstance(right, int):
-            return NotImplemented
-
-        return self.__new__(type(self), int.__sub__(self, right))
+        return (
+            self.__new__(type(self), int.__sub__(self, right))
+            if isinstance(right, int)
+            else NotImplemented
+        )
 
     def __rsub__(self: T, left: T) -> T:  # type: ignore[override]
-        if not isinstance(left, int):
-            return NotImplemented
-
-        return self.__new__(type(self), int.__rsub__(self, left))
+        return (
+            self.__new__(type(self), int.__rsub__(self, left))
+            if isinstance(left, int)
+            else NotImplemented
+        )
 
     def __mul__(self: T, right: T) -> T:  # type: ignore[override]
-        if not isinstance(right, int):
-            return NotImplemented
-
-        return self.__new__(type(self), int.__mul__(self, right))
+        return (
+            self.__new__(type(self), int.__mul__(self, right))
+            if isinstance(right, int)
+            else NotImplemented
+        )
 
     def __rmul__(self: T, left: T) -> T:  # type: ignore[override]
         return self.__mul__(left)
@@ -225,15 +229,16 @@ class GaloisField(tuple, Field):
         return self
 
     def __add__(self: U, right: U) -> U:  # type: ignore[override]
-        if not isinstance(right, type(self)):
-            return NotImplemented
-
-        return self.__new__(
-            type(self),
-            (
-                x + y
-                for (x, y) in cast(Iterable[Tuple[int, int]], zip(self, right))
-            ),
+        return (
+            self.__new__(
+                type(self),
+                (
+                    x + y
+                    for (x, y) in cast(Iterable[Tuple[int, int]], zip(self, right))
+                ),
+            )
+            if isinstance(right, type(self))
+            else NotImplemented
         )
 
     def __radd__(self: U, left: U) -> U:
@@ -257,15 +262,16 @@ class GaloisField(tuple, Field):
         )
 
     def __rsub__(self: U, left: U) -> U:
-        if not isinstance(left, type(self)):
-            return NotImplemented
-
-        return self.__new__(
-            type(self),
-            (
-                x - y
-                for (x, y) in cast(Iterable[Tuple[int, int]], zip(left, self))
-            ),
+        return (
+            self.__new__(
+                type(self),
+                (
+                    x - y
+                    for (x, y) in cast(Iterable[Tuple[int, int]], zip(left, self))
+                ),
+            )
+            if isinstance(left, type(self))
+            else NotImplemented
         )
 
     def __mul__(self: U, right: U) -> U:  # type: ignore[override]
