@@ -184,18 +184,15 @@ class BlockDownloader(ForkTracking):
         if count == 0:
             return []
 
-        calls = []
-
-        for number in range(first, first + count):
-            calls.append(
-                {
-                    "jsonrpc": "2.0",
-                    "id": hex(number),
-                    "method": "debug_getBlockRlp",
-                    "params": [number],
-                }
-            )
-
+        calls = [
+            {
+                "jsonrpc": "2.0",
+                "id": hex(number),
+                "method": "debug_getBlockRlp",
+                "params": [number],
+            }
+            for number in range(first, first + count)
+        ]
         data = json.dumps(calls).encode("utf-8")
 
         self.log.debug("fetching blocks [%d, %d)...", first, first + count)
@@ -240,55 +237,7 @@ class BlockDownloader(ForkTracking):
         """
         Turn a json transaction into a `Transaction`.
         """
-        if hasattr(self.module("fork_types"), "LegacyTransaction"):
-            if t["type"] == "0x1":
-                access_list = []
-                for sublist in t.get("accessList", []):
-                    access_list.append(
-                        (
-                            self.module("utils.hexadecimal").hex_to_address(
-                                sublist.get("address")
-                            ),
-                            [
-                                hex_to_bytes32(key)
-                                for key in sublist.get("storageKeys")
-                            ],
-                        )
-                    )
-                return b"\x01" + rlp.encode(
-                    self.module("fork_types").AccessListTransaction(
-                        U64(1),
-                        hex_to_u256(t["nonce"]),
-                        hex_to_u256(t["gasPrice"]),
-                        hex_to_u256(t["gas"]),
-                        self.module("utils.hexadecimal").hex_to_address(
-                            t["to"]
-                        )
-                        if t["to"]
-                        else Bytes0(b""),
-                        hex_to_u256(t["value"]),
-                        hex_to_bytes(t["input"]),
-                        access_list,
-                        hex_to_u256(t["v"]),
-                        hex_to_u256(t["r"]),
-                        hex_to_u256(t["s"]),
-                    )
-                )
-            else:
-                return self.module("fork_types").LegacyTransaction(
-                    hex_to_u256(t["nonce"]),
-                    hex_to_u256(t["gasPrice"]),
-                    hex_to_u256(t["gas"]),
-                    self.module("utils.hexadecimal").hex_to_address(t["to"])
-                    if t["to"]
-                    else Bytes0(b""),
-                    hex_to_u256(t["value"]),
-                    hex_to_bytes(t["input"]),
-                    hex_to_u256(t["v"]),
-                    hex_to_u256(t["r"]),
-                    hex_to_u256(t["s"]),
-                )
-        else:
+        if not hasattr(self.module("fork_types"), "LegacyTransaction"):
             return self.module("fork_types").Transaction(
                 hex_to_u256(t["nonce"]),
                 hex_to_u256(t["gasPrice"]),
@@ -302,6 +251,48 @@ class BlockDownloader(ForkTracking):
                 hex_to_u256(t["r"]),
                 hex_to_u256(t["s"]),
             )
+        if t["type"] != "0x1":
+            return self.module("fork_types").LegacyTransaction(
+                hex_to_u256(t["nonce"]),
+                hex_to_u256(t["gasPrice"]),
+                hex_to_u256(t["gas"]),
+                self.module("utils.hexadecimal").hex_to_address(t["to"])
+                if t["to"]
+                else Bytes0(b""),
+                hex_to_u256(t["value"]),
+                hex_to_bytes(t["input"]),
+                hex_to_u256(t["v"]),
+                hex_to_u256(t["r"]),
+                hex_to_u256(t["s"]),
+            )
+        access_list = [
+            (
+                self.module("utils.hexadecimal").hex_to_address(
+                    sublist.get("address")
+                ),
+                [hex_to_bytes32(key) for key in sublist.get("storageKeys")],
+            )
+            for sublist in t.get("accessList", [])
+        ]
+        return b"\x01" + rlp.encode(
+            self.module("fork_types").AccessListTransaction(
+                U64(1),
+                hex_to_u256(t["nonce"]),
+                hex_to_u256(t["gasPrice"]),
+                hex_to_u256(t["gas"]),
+                self.module("utils.hexadecimal").hex_to_address(
+                    t["to"]
+                )
+                if t["to"]
+                else Bytes0(b""),
+                hex_to_u256(t["value"]),
+                hex_to_bytes(t["input"]),
+                access_list,
+                hex_to_u256(t["v"]),
+                hex_to_u256(t["r"]),
+                hex_to_u256(t["s"]),
+            )
+        )
 
     def fetch_blocks_eth(
         self,
@@ -315,18 +306,15 @@ class BlockDownloader(ForkTracking):
         if count == 0:
             return []
 
-        calls = []
-
-        for number in range(first, first + count):
-            calls.append(
-                {
-                    "jsonrpc": "2.0",
-                    "id": hex(number),
-                    "method": "eth_getBlockByNumber",
-                    "params": [hex(number), True],
-                }
-            )
-
+        calls = [
+            {
+                "jsonrpc": "2.0",
+                "id": hex(number),
+                "method": "eth_getBlockByNumber",
+                "params": [hex(number), True],
+            }
+            for number in range(first, first + count)
+        ]
         data = json.dumps(calls).encode("utf-8")
 
         self.log.debug("fetching blocks [%d, %d)...", first, first + count)
@@ -361,10 +349,7 @@ class BlockDownloader(ForkTracking):
                 else:
                     res = reply["result"]
                     headers[reply_id] = self.make_header(res)
-                    transactions = []
-                    for t in res["transactions"]:
-                        transactions.append(self.load_transaction(t))
-
+                    transactions = [self.load_transaction(t) for t in res["transactions"]]
                     transaction_lists[reply_id] = transactions
                     ommers_needed[reply_id] = len(res["uncles"])
 
@@ -392,17 +377,16 @@ class BlockDownloader(ForkTracking):
         calls = []
 
         for (block_number, num_ommers) in ommers_needed.items():
-            for i in range(num_ommers):
-                calls.append(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": hex(block_number * 20 + i),
-                        "method": "eth_getUncleByBlockNumberAndIndex",
-                        "params": [hex(block_number), hex(i)],
-                    }
-                )
-
-        if calls == []:
+            calls.extend(
+                {
+                    "jsonrpc": "2.0",
+                    "id": hex(block_number * 20 + i),
+                    "method": "eth_getUncleByBlockNumberAndIndex",
+                    "params": [hex(block_number), hex(i)],
+                }
+                for i in range(num_ommers)
+            )
+        if not calls:
             return {}
 
         data = json.dumps(calls).encode("utf-8")
@@ -655,19 +639,14 @@ class Sync(ForkTracking):
             self.set_block(0)
         else:
             self.set_block(persisted_block)
-            if persisted_block < 256:
-                initial_blocks_length = persisted_block - 1
-            else:
-                initial_blocks_length = 255
+            initial_blocks_length = persisted_block - 1 if persisted_block < 256 else 255
             self.downloader = BlockDownloader(
                 self.log,
                 self.options.rpc_url,
                 self.options.geth,
                 persisted_block - initial_blocks_length + 1,
             )
-            blocks = []
-            for _ in range(initial_blocks_length):
-                blocks.append(self.downloader.take_block())
+            blocks = [self.downloader.take_block() for _ in range(initial_blocks_length)]
             self.chain = self.module("fork").BlockChain(
                 blocks=blocks,
                 state=state,

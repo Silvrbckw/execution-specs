@@ -127,11 +127,7 @@ def div(evm: Evm) -> None:
     charge_gas(evm, GAS_LOW)
 
     # OPERATION
-    if divisor == 0:
-        quotient = U256(0)
-    else:
-        quotient = dividend // divisor
-
+    quotient = U256(0) if divisor == 0 else dividend // divisor
     push(evm.stack, quotient)
 
     # PROGRAM COUNTER
@@ -190,11 +186,7 @@ def mod(evm: Evm) -> None:
     charge_gas(evm, GAS_LOW)
 
     # OPERATION
-    if y == 0:
-        remainder = U256(0)
-    else:
-        remainder = x % y
-
+    remainder = U256(0) if y == 0 else x % y
     push(evm.stack, remainder)
 
     # PROGRAM COUNTER
@@ -220,11 +212,7 @@ def smod(evm: Evm) -> None:
     charge_gas(evm, GAS_LOW)
 
     # OPERATION
-    if y == 0:
-        remainder = 0
-    else:
-        remainder = get_sign(x) * (abs(x) % abs(y))
-
+    remainder = 0 if y == 0 else get_sign(x) * (abs(x) % abs(y))
     push(evm.stack, U256.from_signed(remainder))
 
     # PROGRAM COUNTER
@@ -251,11 +239,7 @@ def addmod(evm: Evm) -> None:
     charge_gas(evm, GAS_MID)
 
     # OPERATION
-    if z == 0:
-        result = U256(0)
-    else:
-        result = U256((x + y) % z)
-
+    result = U256(0) if z == 0 else U256((x + y) % z)
     push(evm.stack, result)
 
     # PROGRAM COUNTER
@@ -282,11 +266,7 @@ def mulmod(evm: Evm) -> None:
     charge_gas(evm, GAS_MID)
 
     # OPERATION
-    if z == 0:
-        result = U256(0)
-    else:
-        result = U256((x * y) % z)
-
+    result = U256(0) if z == 0 else U256((x * y) % z)
     push(evm.stack, result)
 
     # PROGRAM COUNTER

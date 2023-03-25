@@ -118,12 +118,7 @@ def get_last_256_block_hashes(chain: BlockChain) -> List[Hash32]:
     if len(recent_blocks) == 0:
         return []
 
-    recent_block_hashes = []
-
-    for block in recent_blocks:
-        prev_block_hash = block.header.parent_hash
-        recent_block_hashes.append(prev_block_hash)
-
+    recent_block_hashes = [block.header.parent_hash for block in recent_blocks]
     # We are computing the hash only for the most recent block and not for
     # the rest of the blocks as they have successors which have the hash of
     # the current block as parent hash.
@@ -325,9 +320,7 @@ def check_transaction(
         If the transaction is not includable.
     """
     ensure(tx.gas <= gas_available, InvalidBlock)
-    sender_address = recover_sender(tx)
-
-    return sender_address
+    return recover_sender(tx)
 
 
 def make_receipt(
@@ -356,14 +349,12 @@ def make_receipt(
     receipt :
         The receipt for the transaction.
     """
-    receipt = Receipt(
+    return Receipt(
         post_state=post_state,
         cumulative_gas_used=cumulative_gas_used,
         bloom=logs_bloom(logs),
         logs=logs,
     )
-
-    return receipt
 
 
 def apply_body(
@@ -509,7 +500,7 @@ def validate_ommers(
 
     ensure(rlp.rlp_hash(ommers) == block_header.ommers_hash, InvalidBlock)
 
-    if len(ommers) == 0:
+    if not ommers:
         # Nothing to validate
         return
 
@@ -733,19 +724,11 @@ def calculate_intrinsic_cost(tx: Transaction) -> Uint:
     verified : `ethereum.base_types.Uint`
         The intrinsic cost of the transaction.
     """
-    data_cost = 0
-
-    for byte in tx.data:
-        if byte == 0:
-            data_cost += TX_DATA_COST_PER_ZERO
-        else:
-            data_cost += TX_DATA_COST_PER_NON_ZERO
-
-    if tx.to == Bytes0(b""):
-        create_cost = TX_CREATE_COST
-    else:
-        create_cost = 0
-
+    data_cost = sum(
+        TX_DATA_COST_PER_ZERO if byte == 0 else TX_DATA_COST_PER_NON_ZERO
+        for byte in tx.data
+    )
+    create_cost = TX_CREATE_COST if tx.to == Bytes0(b"") else 0
     return Uint(TX_BASE_COST + data_cost + create_cost)
 
 
@@ -774,9 +757,9 @@ def recover_sender(tx: Transaction) -> Address:
     #  if v > 28:
     #      v = v - (chain_id*2+8)
 
-    ensure(v == 27 or v == 28, InvalidBlock)
-    ensure(0 < r and r < SECP256K1N, InvalidBlock)
-    ensure(0 < s and s <= SECP256K1N // 2, InvalidBlock)
+    ensure(v in [27, 28], InvalidBlock)
+    ensure(r > 0 and r < SECP256K1N, InvalidBlock)
+    ensure(s > 0 and s <= SECP256K1N // 2, InvalidBlock)
 
     public_key = secp256k1_recover(r, s, v - 27, signing_hash(tx))
     return Address(keccak256(public_key)[12:32])
@@ -882,10 +865,7 @@ def check_gas_limit(gas_limit: Uint, parent_gas_limit: Uint) -> bool:
         return False
     if gas_limit <= parent_gas_limit - max_adjustment_delta:
         return False
-    if gas_limit < GAS_LIMIT_MINIMUM:
-        return False
-
-    return True
+    return gas_limit >= GAS_LIMIT_MINIMUM
 
 
 def calculate_block_difficulty(

@@ -43,11 +43,11 @@ def ecrecover(evm: Evm) -> None:
     r = U256.from_be_bytes(buffer_read(data, U256(64), U256(32)))
     s = U256.from_be_bytes(buffer_read(data, U256(96), U256(32)))
 
-    if v != 27 and v != 28:
+    if v not in [27, 28]:
         return
-    if 0 >= r or r >= SECP256K1N:
+    if r <= 0 or r >= SECP256K1N:
         return
-    if 0 >= s or s >= SECP256K1N:
+    if s <= 0 or s >= SECP256K1N:
         return
 
     try:

@@ -147,9 +147,6 @@ def return_(evm: Evm) -> None:
 
     evm.running = False
 
-    # PROGRAM COUNTER
-    pass
-
 
 def generic_call(
     evm: Evm,
@@ -333,9 +330,6 @@ def selfdestruct(evm: Evm) -> None:
     # STACK
     beneficiary = to_address(pop(evm.stack))
 
-    # GAS
-    pass
-
     # OPERATION
     originator = evm.message.current_target
     beneficiary_balance = get_account(evm.env.state, beneficiary).balance
@@ -355,6 +349,3 @@ def selfdestruct(evm: Evm) -> None:
 
     # HALT the execution
     evm.running = False
-
-    # PROGRAM COUNTER
-    pass

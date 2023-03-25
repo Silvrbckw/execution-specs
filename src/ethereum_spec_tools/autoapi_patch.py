@@ -31,8 +31,7 @@ def get_assign_value_patch(node: Any) -> Any:
 
     if len(targets) == 1:
         target = targets[0]
-        name = get_assign_name(target)
-        if name:
+        if name := get_assign_name(target):
             return (name, astroid_utils._get_const_values(node.value))
 
     return None
@@ -42,14 +41,10 @@ def get_assign_name(target: Any) -> Any:
     """
     Recursively the assign name
     """
-    if isinstance(target, astroid.nodes.AssignName) or isinstance(
-        target, astroid.nodes.Name
-    ):
+    if isinstance(target, (astroid.nodes.AssignName, astroid.nodes.Name)):
         return target.name
-    elif isinstance(target, astroid.nodes.AssignAttr) or isinstance(
-        target, astroid.nodes.Attribute
-    ):
-        return get_assign_name(target.expr) + "." + target.attrname
+    elif isinstance(target, (astroid.nodes.AssignAttr, astroid.nodes.Attribute)):
+        return f"{get_assign_name(target.expr)}.{target.attrname}"
     else:
         return None
 

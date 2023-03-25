@@ -359,10 +359,10 @@ def ethtest_fixtures_as_pytest_fixtures(
 ) -> List[Tuple[RLP, Bytes]]:
     base_path = "tests/fixtures/RLPTests/"
 
-    test_data = dict()
+    test_data = {}
     for test_file in test_files:
         with open(os.path.join(base_path, test_file), "r") as fp:
-            test_data.update(json.load(fp))
+            test_data |= json.load(fp)
 
     pytest_fixtures = []
     for test_details in test_data.values():

@@ -25,11 +25,7 @@ run_shanghai_blockchain_st_tests = partial(
 
 
 def is_in_list(test_case: Dict, test_list: Tuple) -> bool:
-    for test in test_list:
-        if test in test_case["test_file"]:
-            return True
-
-    return False
+    return any(test in test_case["test_file"] for test in test_list)
 
 
 # Run EIP-4895 tests

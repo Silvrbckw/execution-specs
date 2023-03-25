@@ -36,8 +36,7 @@ def find_pickles(path: str, extension: str) -> Iterator[str]:
         for filename in filenames:
             if filename.endswith(extension):
                 file_path = os.path.join(directory, filename)
-                file_path = file_path[len(path) + 1 :]
-                yield file_path
+                yield file_path[len(path) + 1 :]
 
 
 pattern = re.compile(r"[\n\t\s]")
@@ -92,7 +91,7 @@ def _diff(
     if not meaningful_diffs(old_doc, new_doc, trivial_changes):
         return
 
-    diff_pickle_path = os.path.join(diff_path, pickle_path + "64")
+    diff_pickle_path = os.path.join(diff_path, f"{pickle_path}64")
 
     diff_dir_path = os.path.dirname(diff_pickle_path)
 
@@ -166,8 +165,8 @@ def diff(
     new_path = new.name.replace(".", os.sep)
     new_path = os.path.join(input_path, new_path)
 
-    diff_path = old.short_name + "_" + new.short_name
-    diff_index_file = diff_path + ".rst"
+    diff_path = f"{old.short_name}_{new.short_name}"
+    diff_index_file = f"{diff_path}.rst"
     diff_path = os.path.join(output_path, diff_path)
 
     diff_index_path = os.path.join(output_path, diff_index_file)

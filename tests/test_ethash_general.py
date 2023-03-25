@@ -239,10 +239,10 @@ def fetch_dag_data(dag_dump_dir: str, epoch_seed: bytes) -> Tuple[bytes, ...]:
         # The first 8 bytes are Magic Bytes and can be ignored.
         dag_dataset = dag_dataset[8:]
 
-    dag_dataset_items = []
-    for i in range(0, len(dag_dataset), HASH_BYTES):
-        dag_dataset_items.append(dag_dataset[i : i + HASH_BYTES])
-
+    dag_dataset_items = [
+        dag_dataset[i : i + HASH_BYTES]
+        for i in range(0, len(dag_dataset), HASH_BYTES)
+    ]
     return tuple(dag_dataset_items)
 
 

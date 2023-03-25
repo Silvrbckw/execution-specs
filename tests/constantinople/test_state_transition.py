@@ -152,9 +152,7 @@ def test_invalid_block_tests(test_case: Dict) -> None:
                 run_constantinople_blockchain_st_tests(test_case)
     except NoPostState:
         # FIXME: Handle tests that don't have post state
-        pytest.xfail(
-            "{} doesn't have post state".format(test_case["test_key"])
-        )
+        pytest.xfail(f"""{test_case["test_key"]} doesn't have post state""")
 
 
 # Run Non-Legacy GeneralStateTests

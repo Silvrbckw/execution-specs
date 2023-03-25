@@ -13,10 +13,7 @@ from ethereum.utils.hexadecimal import (
 def to_bytes(data: str) -> Bytes:
     if data is None:
         return b""
-    if has_hex_prefix(data):
-        return hex_to_bytes(data)
-
-    return data.encode()
+    return hex_to_bytes(data) if has_hex_prefix(data) else data.encode()
 
 
 def test_trie_secure_hex() -> None:
@@ -80,7 +77,7 @@ def test_trie_any_order() -> None:
 
 
 def load_tests(path: str) -> Any:
-    with open("tests/fixtures/TrieTests/" + path) as f:
+    with open(f"tests/fixtures/TrieTests/{path}") as f:
         tests = json.load(f)
 
     return tests

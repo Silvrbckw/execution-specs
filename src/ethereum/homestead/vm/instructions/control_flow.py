@@ -29,12 +29,6 @@ def stop(evm: Evm) -> None:
     evm :
         The current EVM frame.
     """
-    # STACK
-    pass
-
-    # GAS
-    pass
-
     # OPERATION
     evm.running = False
 
@@ -109,9 +103,6 @@ def pc(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -133,9 +124,6 @@ def gas_left(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -158,14 +146,8 @@ def jumpdest(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_JUMPDEST)
-
-    # OPERATION
-    pass
 
     # PROGRAM COUNTER
     evm.pc += 1

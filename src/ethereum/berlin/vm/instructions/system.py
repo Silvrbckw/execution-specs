@@ -235,9 +235,6 @@ def return_(evm: Evm) -> None:
 
     evm.running = False
 
-    # PROGRAM COUNTER
-    pass
-
 
 def generic_call(
     evm: Evm,
@@ -506,9 +503,6 @@ def selfdestruct(evm: Evm) -> None:
     # HALT the execution
     evm.running = False
 
-    # PROGRAM COUNTER
-    pass
-
 
 def delegatecall(evm: Evm) -> None:
     """
@@ -655,6 +649,3 @@ def revert(evm: Evm) -> None:
     output = memory_read_bytes(evm.memory, memory_start_index, size)
     evm.output = bytes(output)
     raise Revert
-
-    # PROGRAM COUNTER
-    pass

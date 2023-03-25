@@ -57,10 +57,7 @@ def ceil32(value: Uint) -> Uint:
     """
     ceiling = Uint(32)
     remainder = value % ceiling
-    if remainder == Uint(0):
-        return value
-    else:
-        return value + ceiling - remainder
+    return value if remainder == Uint(0) else value + ceiling - remainder
 
 
 def is_prime(number: int) -> bool:
@@ -80,13 +77,7 @@ def is_prime(number: int) -> bool:
     if number <= 1:
         return False
 
-    # number ** 0.5 is faster than math.sqrt(number)
-    for x in range(2, int(number**0.5) + 1):
-        # Return False if number is divisible by x
-        if number % x == 0:
-            return False
-
-    return True
+    return all(number % x != 0 for x in range(2, int(number**0.5) + 1))
 
 
 def le_bytes_to_uint32_sequence(data: bytes) -> Tuple[U32, ...]:
@@ -107,10 +98,7 @@ def le_bytes_to_uint32_sequence(data: bytes) -> Tuple[U32, ...]:
         Sequence of U32 numbers obtained from the little endian byte
         stream.
     """
-    sequence = []
-    for i in range(0, len(data), 4):
-        sequence.append(U32.from_le_bytes(data[i : i + 4]))
-
+    sequence = [U32.from_le_bytes(data[i : i + 4]) for i in range(0, len(data), 4)]
     return tuple(sequence)
 
 

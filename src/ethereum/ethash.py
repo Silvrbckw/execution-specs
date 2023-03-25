@@ -161,11 +161,9 @@ def generate_cache(block_number: Uint) -> Tuple[Tuple[U32, ...], ...]:
                 (index - 1 + int(cache_size_words)) % cache_size_words
             ]
             second_cache_item = cache[
-                U32.from_le_bytes(cache[index][0:4]) % cache_size_words
+                U32.from_le_bytes(cache[index][:4]) % cache_size_words
             ]
-            result = bytes(
-                [a ^ b for a, b in zip(first_cache_item, second_cache_item)]
-            )
+            result = bytes(a ^ b for a, b in zip(first_cache_item, second_cache_item))
             cache[index] = keccak512(result)
 
     return tuple(
@@ -337,12 +335,10 @@ def hashimoto(
 
         mix = fnv_hash(mix, new_data)
 
-    compressed_mix = []
-    for i in range(0, len(mix), 4):
-        compressed_mix.append(
-            fnv(fnv(fnv(mix[i], mix[i + 1]), mix[i + 2]), mix[i + 3])
-        )
-
+    compressed_mix = [
+        fnv(fnv(fnv(mix[i], mix[i + 1]), mix[i + 2]), mix[i + 3])
+        for i in range(0, len(mix), 4)
+    ]
     mix_digest = le_uint32_sequence_to_bytes(compressed_mix)
     result = keccak256(seed_hash + mix_digest)
 

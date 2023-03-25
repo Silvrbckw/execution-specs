@@ -57,7 +57,7 @@ class HardforkIndex(Index):
             fork = None
 
             for index, guess in enumerate(forks):
-                if name.startswith(guess.name + "."):
+                if name.startswith(f"{guess.name}."):
                     fork = guess
                     fork_index = index
                     break
@@ -104,9 +104,7 @@ class HardforkIndex(Index):
                     f"diffs/{prev_fork.short_name}_{fork.short_name}/{module}"
                 )
 
-                diff_file_path = os.path.join(
-                    os.getcwd(), "doc", doc_name + ".pickle64"
-                )
+                diff_file_path = os.path.join(os.getcwd(), "doc", f"{doc_name}.pickle64")
 
                 if not os.path.isfile(diff_file_path):
                     # diff tool did not find any meaningful differences

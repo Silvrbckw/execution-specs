@@ -94,10 +94,9 @@ def process_message_call(
         Output of the message call
     """
     if message.target == Bytes0(b""):
-        is_collision = account_has_code_or_nonce(
+        if is_collision := account_has_code_or_nonce(
             env.state, message.current_target
-        )
-        if is_collision:
+        ):
             return MessageCallOutput(
                 U256(0), U256(0), tuple(), set(), set(), True
             )

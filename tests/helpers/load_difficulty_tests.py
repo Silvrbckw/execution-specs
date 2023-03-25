@@ -27,7 +27,7 @@ class DifficultyTestLoader:
         self.fork_name = fork_name
         self.test_dir = f"tests/fixtures/DifficultyTests/df{fork_name}"
         try:
-            self.test_files = [file for file in os.listdir(self.test_dir)]
+            self.test_files = list(os.listdir(self.test_dir))
         except:
             self.test_files = []
 
@@ -48,7 +48,7 @@ class DifficultyTestLoader:
         for test_name in json_data:
             has_ommers = json_data[test_name]["parentUncles"]
 
-            parent_has_ommers = False if has_ommers == "0x00" else True
+            parent_has_ommers = has_ommers != "0x00"
 
             test = {
                 "name": test_name,

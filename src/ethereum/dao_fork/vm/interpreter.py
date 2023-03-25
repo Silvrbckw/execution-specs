@@ -81,10 +81,9 @@ def process_message_call(
         Output of the message call
     """
     if message.target == Bytes0(b""):
-        is_collision = account_has_code_or_nonce(
+        if is_collision := account_has_code_or_nonce(
             env.state, message.current_target
-        )
-        if is_collision:
+        ):
             return MessageCallOutput(U256(0), U256(0), tuple(), set(), True)
         else:
             evm = process_create_message(message, env)
@@ -100,7 +99,7 @@ def process_message_call(
     return MessageCallOutput(
         gas_left=evm.gas_left,
         refund_counter=refund_counter,
-        logs=evm.logs if not evm.has_erred else (),
+        logs=() if evm.has_erred else evm.logs,
         accounts_to_delete=accounts_to_delete,
         has_erred=evm.has_erred,
     )

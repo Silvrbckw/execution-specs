@@ -129,11 +129,10 @@ IGNORE_INVALID_BLOCK_TESTS = ("bcForgedTest",)
 
 
 def is_in_xfail(test_case: Dict) -> bool:
-    for dir, test_key in xfail_candidates:
-        if dir in test_case["test_file"] and test_case["test_key"] == test_key:
-            return True
-
-    return False
+    return any(
+        dir in test_case["test_file"] and test_case["test_key"] == test_key
+        for dir, test_key in xfail_candidates
+    )
 
 
 @pytest.mark.parametrize(
@@ -154,9 +153,7 @@ def test_invalid_block_tests(test_case: Dict) -> None:
                 run_london_blockchain_st_tests(test_case)
     except NoPostState:
         # FIXME: Handle tests that don't have post state
-        pytest.xfail(
-            "{} doesn't have post state".format(test_case["test_key"])
-        )
+        pytest.xfail(f"""{test_case["test_key"]} doesn't have post state""")
 
 
 def test_transaction_with_insufficient_balance_for_value() -> None:

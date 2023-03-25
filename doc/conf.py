@@ -67,9 +67,7 @@ exclude_patterns = []
 
 if tags.has("stage0"):
     root_doc = "stage0"
-    exclude_patterns.append("index.rst")
-    exclude_patterns.append("diffs/**")
-
+    exclude_patterns.extend(("index.rst", "diffs/**"))
     # Avoid generating nodes that'll always differ between hard forks to reduce
     # noise in the diffs.
     autodoc_typehints = "none"

@@ -636,9 +636,11 @@ class FixedUInt(int):
         )
 
     def __rshift__(self: T, shift_by: int) -> T:
-        if not isinstance(shift_by, int):
-            return NotImplemented
-        return int.__new__(self.__class__, int.__rshift__(self, shift_by))
+        return (
+            int.__new__(self.__class__, int.__rshift__(self, shift_by))
+            if isinstance(shift_by, int)
+            else NotImplemented
+        )
 
     def to_be_bytes(self) -> "Bytes":
         """
@@ -699,10 +701,7 @@ class U256(FixedUInt):
         self : `U256`
             Unsigned integer obtained from `value`.
         """
-        if value >= 0:
-            return cls(value)
-
-        return cls(value & cls.MAX_VALUE)
+        return cls(value) if value >= 0 else cls(value & cls.MAX_VALUE)
 
     def to_be_bytes32(self) -> "Bytes32":
         """
@@ -723,12 +722,7 @@ class U256(FixedUInt):
         signed_int : `int`
             Signed integer obtained from 256-bit unsigned integer.
         """
-        if self <= U255_MAX_VALUE:
-            # This means that the sign bit is 0
-            return int(self)
-
-        # -1 * (2's complement of U256 value)
-        return int(self) - U256_CEIL_VALUE
+        return int(self) if self <= U255_MAX_VALUE else int(self) - U256_CEIL_VALUE
 
 
 U256.MAX_VALUE = int.__new__(U256, U256_MAX_VALUE)

@@ -65,9 +65,6 @@ def coinbase(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -92,9 +89,6 @@ def timestamp(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -118,9 +112,6 @@ def number(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -144,9 +135,6 @@ def difficulty(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -170,9 +158,6 @@ def gas_limit(evm: Evm) -> None:
         The current EVM frame.
 
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 

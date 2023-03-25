@@ -77,9 +77,6 @@ def coinbase(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -110,9 +107,6 @@ def timestamp(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -142,9 +136,6 @@ def number(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -174,9 +165,6 @@ def prev_randao(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -206,9 +194,6 @@ def gas_limit(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 
@@ -235,9 +220,6 @@ def chain_id(evm: Evm) -> None:
     :py:class:`~ethereum.shanghai.vm.exceptions.OutOfGasError`
         If `evm.gas_left` is less than `2`.
     """
-    # STACK
-    pass
-
     # GAS
     charge_gas(evm, GAS_BASE)
 

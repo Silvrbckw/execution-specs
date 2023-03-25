@@ -68,7 +68,7 @@ class PatchHygiene(Lint):
 
             if maximum is None or previous_position > maximum:
                 maximum = previous_position
-            elif previous_position <= maximum:
+            else:
                 diagnostic = Diagnostic(
                     message=(
                         f"the item `{item}` in `{name}` has changed "

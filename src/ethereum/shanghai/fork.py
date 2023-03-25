@@ -127,12 +127,7 @@ def get_last_256_block_hashes(chain: BlockChain) -> List[Hash32]:
     if len(recent_blocks) == 0:
         return []
 
-    recent_block_hashes = []
-
-    for block in recent_blocks:
-        prev_block_hash = block.header.parent_hash
-        recent_block_hashes.append(prev_block_hash)
-
+    recent_block_hashes = [block.header.parent_hash for block in recent_blocks]
     # We are computing the hash only for the most recent block and not for
     # the rest of the blocks as they have successors which have the hash of
     # the current block as parent hash.
@@ -647,10 +642,7 @@ def validate_transaction(tx: Transaction) -> bool:
         return False
     if tx.nonce >= 2**64 - 1:
         return False
-    if tx.to == Bytes0(b"") and len(tx.data) > 2 * MAX_CODE_SIZE:
-        return False
-
-    return True
+    return tx.to != Bytes0(b"") or len(tx.data) <= 2 * MAX_CODE_SIZE
 
 
 def calculate_intrinsic_cost(tx: Transaction) -> Uint:
@@ -676,14 +668,10 @@ def calculate_intrinsic_cost(tx: Transaction) -> Uint:
     verified : `ethereum.base_types.Uint`
         The intrinsic cost of the transaction.
     """
-    data_cost = 0
-
-    for byte in tx.data:
-        if byte == 0:
-            data_cost += TX_DATA_COST_PER_ZERO
-        else:
-            data_cost += TX_DATA_COST_PER_NON_ZERO
-
+    data_cost = sum(
+        TX_DATA_COST_PER_ZERO if byte == 0 else TX_DATA_COST_PER_NON_ZERO
+        for byte in tx.data
+    )
     if tx.to == Bytes0(b""):
         create_cost = TX_CREATE_COST + int(init_code_cost(Uint(len(tx.data))))
     else:
@@ -722,18 +710,16 @@ def recover_sender(chain_id: U64, tx: Transaction) -> Address:
     """
     v, r, s = tx.v, tx.r, tx.s
 
-    ensure(0 < r and r < SECP256K1N, InvalidBlock)
-    ensure(0 < s and s <= SECP256K1N // 2, InvalidBlock)
+    ensure(r > 0 and r < SECP256K1N, InvalidBlock)
+    ensure(s > 0 and s <= SECP256K1N // 2, InvalidBlock)
 
     if isinstance(tx, LegacyTransaction):
-        if v == 27 or v == 28:
+        if v in [27, 28]:
             public_key = secp256k1_recover(
                 r, s, v - 27, signing_hash_pre155(tx)
             )
         else:
-            ensure(
-                v == 35 + chain_id * 2 or v == 36 + chain_id * 2, InvalidBlock
-            )
+            ensure(v in [35 + chain_id * 2, 36 + chain_id * 2], InvalidBlock)
             public_key = secp256k1_recover(
                 r, s, v - 35 - chain_id * 2, signing_hash_155(tx)
             )
@@ -935,7 +921,4 @@ def check_gas_limit(gas_limit: Uint, parent_gas_limit: Uint) -> bool:
         return False
     if gas_limit <= parent_gas_limit - max_adjustment_delta:
         return False
-    if gas_limit < GAS_LIMIT_MINIMUM:
-        return False
-
-    return True
+    return gas_limit >= GAS_LIMIT_MINIMUM

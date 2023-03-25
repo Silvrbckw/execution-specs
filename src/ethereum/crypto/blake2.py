@@ -204,7 +204,7 @@ class Blake2:
         """
         # Initialize local work vector v[0..15]
         v = [0] * 16
-        v[0:8] = h  # First half from state
+        v[:8] = h
         v[8:15] = self.IV  # Second half from IV
 
         v[12] = t_0 ^ self.IV[4]  # Low word of the offset
@@ -229,7 +229,7 @@ class Blake2:
             v = self.G(v, 3, 4, 9, 14, m[s[14]], m[s[15]])
 
         result_message_words = (h[i] ^ v[i] ^ v[i + 8] for i in range(8))
-        return struct.pack("<8%s" % self.word_format, *result_message_words)
+        return struct.pack(f"<8{self.word_format}", *result_message_words)
 
 
 # Parameters specific to the Blake2b implementation

@@ -128,7 +128,7 @@ class Linter:
         if path is None:
             return []
 
-        modules = pkgutil.iter_modules(path, lints.__name__ + ".")
+        modules = pkgutil.iter_modules(path, f"{lints.__name__}.")
         for _, name, _ in modules:
             try:
                 importlib.import_module(name)
@@ -165,7 +165,7 @@ class Linter:
 
         for lint in self.lints:
             diagnostics: List[Diagnostic] = []
-            for hardfork in range(0, len(hardforks)):
+            for hardfork in range(len(hardforks)):
                 diagnostics += lint.lint(hardforks, hardfork)
 
                 if diagnostics:

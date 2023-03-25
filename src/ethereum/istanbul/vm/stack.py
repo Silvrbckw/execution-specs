@@ -34,7 +34,7 @@ def pop(stack: List[U256]) -> U256:
         The top element on the stack.
 
     """
-    if len(stack) == 0:
+    if not stack:
         raise StackUnderflowError
 
     return stack.pop()

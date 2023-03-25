@@ -144,7 +144,7 @@ class Load(BaseLoad):
         for fork in forks:
             if fork.name == "ethereum.paris":
                 merge_fork_found = True
-            if fork.name == "ethereum." + self._fork_module:
+            if fork.name == f"ethereum.{self._fork_module}":
                 break
         return merge_fork_found
 
@@ -255,18 +255,13 @@ class Load(BaseLoad):
 
     def json_to_access_list(self, raw: Any) -> Any:
         """Converts json access list data to a list of access list entries"""
-        access_list = []
-        for sublist in raw:
-            access_list.append(
-                (
-                    self.hex_to_address(sublist.get("address")),
-                    [
-                        hex_to_bytes32(key)
-                        for key in sublist.get("storageKeys")
-                    ],
-                )
+        return [
+            (
+                self.hex_to_address(sublist.get("address")),
+                [hex_to_bytes32(key) for key in sublist.get("storageKeys")],
             )
-        return access_list
+            for sublist in raw
+        ]
 
     def json_to_tx(self, raw: Any) -> Any:
         """Converts json transaction data to a transaction object"""

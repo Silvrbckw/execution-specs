@@ -169,13 +169,13 @@ class Env:
         """
         ommers = []
         if "ommers" in data:
-            for ommer in data["ommers"]:
-                ommers.append(
-                    Ommer(
-                        ommer["delta"],
-                        t8n.hex_to_address(ommer["address"]),
-                    )
+            ommers.extend(
+                Ommer(
+                    ommer["delta"],
+                    t8n.hex_to_address(ommer["address"]),
                 )
+                for ommer in data["ommers"]
+            )
         self.ommers = ommers
 
 
@@ -203,7 +203,7 @@ class Alloc:
                 if key == "storage":
                     continue
                 elif not value.startswith("0x"):
-                    data[address][key] = "0x" + hex(int(value))
+                    data[address][key] = f"0x{hex(int(value))}"
 
         self.state = t8n.json_to_state(data)
 
@@ -231,7 +231,7 @@ class Alloc:
                     ]._data.items()
                 }
 
-            data["0x" + address.hex()] = account_data
+            data[f"0x{address.hex()}"] = account_data
 
         return data
 
@@ -372,21 +372,16 @@ class Result:
 
     def to_json(self) -> Any:
         """Encode the result to JSON"""
-        data = {}
+        data = {"stateRoot": f"0x{self.state_root.hex()}"}
 
-        data["stateRoot"] = "0x" + self.state_root.hex()
-        data["txRoot"] = "0x" + self.tx_root.hex()
-        data["receiptsRoot"] = "0x" + self.receipt_root.hex()
+        data["txRoot"] = f"0x{self.tx_root.hex()}"
+        data["receiptsRoot"] = f"0x{self.receipt_root.hex()}"
         if self.withdrawals_root:
-            data["withdrawalsRoot"] = "0x" + self.withdrawals_root.hex()
-        data["logsHash"] = "0x" + self.logs_hash.hex()
-        data["logsBloom"] = "0x" + self.bloom.hex()
+            data["withdrawalsRoot"] = f"0x{self.withdrawals_root.hex()}"
+        data["logsHash"] = f"0x{self.logs_hash.hex()}"
+        data["logsBloom"] = f"0x{self.bloom.hex()}"
         data["gasUsed"] = hex(self.gas_used)
-        if self.difficulty:
-            data["currentDifficulty"] = hex(self.difficulty)
-        else:
-            data["currentDifficulty"] = None
-
+        data["currentDifficulty"] = hex(self.difficulty) if self.difficulty else None
         data["rejected"] = [
             {"index": idx, "error": error}
             for idx, error in self.rejected.items()

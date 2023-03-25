@@ -2,6 +2,7 @@
 Simple patching tool
 """
 
+
 import argparse
 import subprocess
 from sys import stderr, stdout
@@ -54,13 +55,13 @@ for target in options.targets:
             pass
         elif line.startswith("--- a/"):
             patch += line.replace(
-                "--- a/" + options.prefix + options.source_fork[0],
-                "--- " + options.prefix + target,
+                f"--- a/{options.prefix}{options.source_fork[0]}",
+                f"--- {options.prefix}{target}",
             )
         elif line.startswith("+++ b/"):
             patch += line.replace(
-                "+++ b/" + options.prefix + options.source_fork[0],
-                "+++ " + options.prefix + target,
+                f"+++ b/{options.prefix}{options.source_fork[0]}",
+                f"+++ {options.prefix}{target}",
             )
         else:
             patch += line
